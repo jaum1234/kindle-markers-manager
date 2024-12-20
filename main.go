@@ -2,27 +2,27 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"log"
-	"os"
+	"net/http"
 	"regexp"
 	"strings"
 
 	"github.com/dlclark/regexp2"
+	"github.com/gin-gonic/gin"
 )
 
 type Marker struct {
-	Type         string
-	Page         string
-	StartPositon string
-	EndPositon   string
-	Content      string
-	Timestamp    int64
-	Book         string
+	Type         string `json:"id"`
+	Page         string `json:"page"`
+	StartPositon string `json:"startPosition"`
+	EndPositon   string `json:"endPosition"`
+	Content      string `json:"content"`
+	Timestamp    int64  `json:"timestamp"`
+	Book         string `json:"book"`
 }
 
-func main() {
-	file, err := os.Open("My Clippings copy.txt")
+func readFile(c *gin.Context) {
+	file, _, err := c.Request.FormFile("my-file")
 
 	if err != nil {
 		log.Fatal(err)
@@ -37,7 +37,6 @@ func main() {
 
 	for scanner.Scan() {
 		text := strings.Trim(scanner.Text(), " ")
-		// fmt.Println(text)
 		markerSeparator := regexp.MustCompile(`^=+$`)
 		whiteSpaces := regexp.MustCompile(`^\s*$`)
 
@@ -56,7 +55,7 @@ func main() {
 	}
 
 	var markers []Marker
-	// fmt.Println(buffer)
+
 	for _, marker := range buffer {
 		var m Marker
 
@@ -74,28 +73,35 @@ func main() {
 					m.Type = "note"
 				}
 
-				page := regexp2.MustCompile(`(?<=página )\d+(?= \|)`, 0)
+				page := regexp2.MustCompile(`(?<=página )\d+(-\d+)?(?= \|)`, 0)
 
 				matches, _ := page.FindStringMatch(line)
 
 				if matches == nil {
-					log.Fatal("Missing page.")
+					log.Fatal("Missing page: " + line)
 				}
 
 				m.Page = matches.String()
 
-				position := regexp2.MustCompile(`(?<=posição )\d+-\d+(?= \|)`, 0)
+				position := regexp2.MustCompile(`(?<=posição )\d+(-\d+)?(?= \|)`, 0)
 
 				matches, _ = position.FindStringMatch(line)
 
 				if matches == nil {
-					log.Fatal("Missing position.")
+					m.StartPositon = "0"
+					m.EndPositon = "0"
+				} else {
+					split := strings.Split(matches.String(), "-")
+
+					m.StartPositon = split[0]
+
+					if len(split) > 1 {
+						m.EndPositon = split[1]
+					} else {
+						m.EndPositon = split[0]
+					}
 				}
 
-				split := strings.Split(matches.String(), "-")
-
-				m.StartPositon = split[0]
-				m.EndPositon = split[1]
 			case 2:
 				m.Content = line
 			}
@@ -104,5 +110,22 @@ func main() {
 		markers = append(markers, m)
 	}
 
-	fmt.Println(markers)
+	c.IndentedJSON(http.StatusOK, markers)
+}
+
+func renderMainPage(c *gin.Context) {
+	c.HTML(http.StatusOK, "index.html", gin.H{})
+}
+
+func main() {
+	r := gin.Default()
+
+	r.LoadHTMLGlob("views/*")
+
+	r.Static("/assets", "assets/")
+
+	r.POST("/read-file", readFile)
+	r.GET("/", renderMainPage)
+
+	r.Run("localhost:8001")
 }
