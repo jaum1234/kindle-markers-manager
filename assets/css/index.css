@@ -1,0 +1,16 @@
+body {
+    color: black;
+    background-color: white;
+}
+
+.container {
+    display: flex;
+}
+
+.container aside {
+    width: 30%;
+}
+
+.container main {
+    width: 70%;
+}
