@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"log"
 	"net/http"
 	"regexp"
 	"strings"
@@ -12,20 +11,106 @@ import (
 )
 
 type Marker struct {
-	Type         string `json:"id"`
+	Type         string `json:"type"`
 	Page         string `json:"page"`
 	StartPositon string `json:"startPosition"`
-	EndPositon   string `json:"endPosition"`
+	EndPosition  string `json:"endPosition"`
 	Content      string `json:"content"`
 	Timestamp    int64  `json:"timestamp"`
 	Book         string `json:"book"`
+	Author       string `json:"author"`
 }
 
-func readFile(c *gin.Context) {
+const UNKNOWN string = "unknown"
+const (
+	BookLine = iota
+	MetadataLine
+	ContentLine
+)
+
+func MatchOrUnknown(text string, pattern string) string {
+	res := regexp2.MustCompile(pattern, 1)
+	matches, _ := res.FindStringMatch(text)
+
+	if matches != nil {
+		return matches.String()
+	}
+
+	return UNKNOWN
+}
+
+func ExtractAuthor(line string) string {
+	return MatchOrUnknown(line, `(?<=\().+(?=\))`)
+}
+
+func ExtractBookTitle(line string) string {
+	return MatchOrUnknown(line, `.+(?= \()`)
+}
+
+func ExtractPage(line string) string {
+	return MatchOrUnknown(line, `(?<=página|page) \d+(-\d+)?(?= \|)`)
+}
+
+func ExtractPositions(line string) (string, string) {
+	position := regexp2.MustCompile(`(?<=posição|location) \d+(-\d+)?(?= \|)`, 1)
+
+	matches, _ := position.FindStringMatch(line)
+
+	if matches == nil {
+		return UNKNOWN, UNKNOWN
+	}
+
+	split := strings.Split(matches.String(), "-")
+
+	start := strings.Trim(split[0], " ")
+	var end string
+
+	if len(split) > 1 {
+		end = strings.Trim(split[1], " ")
+	} else {
+		end = strings.Trim(split[0], " ")
+	}
+
+	return start, end
+}
+
+func CreateMarker(data []string) Marker {
+	var m Marker
+
+	for i, line := range data {
+		switch i {
+		case BookLine:
+			m.Author = ExtractAuthor(line)
+			m.Book = ExtractBookTitle(line)
+		case MetadataLine:
+			isHighlight := regexp2.MustCompile(`destaque|highlight`, 1)
+			match, _ := isHighlight.FindStringMatch(line)
+
+			if match != nil {
+				m.Type = "highlight"
+			} else {
+				m.Type = "note"
+			}
+
+			m.Page = ExtractPage(line)
+			m.StartPositon, m.EndPosition = ExtractPositions(line)
+
+		case ContentLine:
+			m.Content = line
+		}
+	}
+
+	return m
+}
+
+func ReadFile(c *gin.Context) {
 	file, _, err := c.Request.FormFile("my-file")
 
 	if err != nil {
-		log.Fatal(err)
+		c.IndentedJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
 	}
 
 	defer file.Close()
@@ -51,69 +136,24 @@ func readFile(c *gin.Context) {
 	}
 
 	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
+		c.IndentedJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
 	}
 
 	var markers []Marker
 
-	for _, marker := range buffer {
-		var m Marker
-
-		for i, line := range marker {
-			switch i {
-			case 0:
-				m.Book = line
-			case 1:
-				isHighlight := regexp.MustCompile(`destaque`)
-				res := isHighlight.MatchString(line)
-
-				if res {
-					m.Type = "highlight"
-				} else {
-					m.Type = "note"
-				}
-
-				page := regexp2.MustCompile(`(?<=página )\d+(-\d+)?(?= \|)`, 0)
-
-				matches, _ := page.FindStringMatch(line)
-
-				if matches == nil {
-					log.Fatal("Missing page: " + line)
-				}
-
-				m.Page = matches.String()
-
-				position := regexp2.MustCompile(`(?<=posição )\d+(-\d+)?(?= \|)`, 0)
-
-				matches, _ = position.FindStringMatch(line)
-
-				if matches == nil {
-					m.StartPositon = "0"
-					m.EndPositon = "0"
-				} else {
-					split := strings.Split(matches.String(), "-")
-
-					m.StartPositon = split[0]
-
-					if len(split) > 1 {
-						m.EndPositon = split[1]
-					} else {
-						m.EndPositon = split[0]
-					}
-				}
-
-			case 2:
-				m.Content = line
-			}
-		}
-
-		markers = append(markers, m)
+	for _, data := range buffer {
+		markers = append(markers, CreateMarker(data))
 	}
 
-	c.IndentedJSON(http.StatusOK, markers)
+	c.IndentedJSON(http.StatusOK, gin.H{
+		"data": markers,
+	})
 }
 
-func renderMainPage(c *gin.Context) {
+func RenderMainPage(c *gin.Context) {
 	c.HTML(http.StatusOK, "index.html", gin.H{})
 }
 
@@ -124,8 +164,8 @@ func main() {
 
 	r.Static("/assets", "assets/")
 
-	r.POST("/read-file", readFile)
-	r.GET("/", renderMainPage)
+	r.POST("/read-file", ReadFile)
+	r.GET("/", RenderMainPage)
 
 	r.Run("localhost:8001")
 }

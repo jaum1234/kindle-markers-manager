@@ -4,7 +4,7 @@ const readFile = async (f) => {
         body: f
     });
 
-    return await r.json();
+    return (await r.json()).data;
 }
 
 const renderMarkers = (data) => {
