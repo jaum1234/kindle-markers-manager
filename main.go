@@ -2,9 +2,12 @@ package main
 
 import (
 	"bufio"
+	"fmt"
+	"log"
 	"net/http"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/dlclark/regexp2"
 	"github.com/gin-gonic/gin"
@@ -28,6 +31,21 @@ const (
 	ContentLine
 )
 
+var months = map[string]string{
+	"janeiro":   "01",
+	"fevereiro": "02",
+	"março":     "03",
+	"abril":     "04",
+	"maio":      "05",
+	"junho":     "06",
+	"julho":     "07",
+	"agosto":    "08",
+	"setembro":  "09",
+	"outubro":   "10",
+	"novembro":  "11",
+	"dezembro":  "12",
+}
+
 func MatchOrUnknown(text string, pattern string) string {
 	res := regexp2.MustCompile(pattern, 1)
 	matches, _ := res.FindStringMatch(text)
@@ -48,11 +66,11 @@ func ExtractBookTitle(line string) string {
 }
 
 func ExtractPage(line string) string {
-	return MatchOrUnknown(line, `(?<=página|page) \d+(-\d+)?(?= \|)`)
+	return MatchOrUnknown(line, `(?<=página|page) \d+(-\d+)?`)
 }
 
 func ExtractPositions(line string) (string, string) {
-	position := regexp2.MustCompile(`(?<=posição|location) \d+(-\d+)?(?= \|)`, 1)
+	position := regexp2.MustCompile(`(?<=posição|location) \d+(-\d+)?`, 1)
 
 	matches, _ := position.FindStringMatch(line)
 
@@ -112,14 +130,16 @@ func GroupLinesPerMark(scanner *bufio.Scanner) [][]string {
 func CreateMarker(data []string) Marker {
 	var m Marker
 
-	for line, data := range data {
+	for line, d := range data {
 		switch line {
 		case BookLine:
-			m.Author = ExtractAuthor(data)
-			m.Book = ExtractBookTitle(data)
+			m.Author = ExtractAuthor(d)
+			m.Book = ExtractBookTitle(d)
 		case MetadataLine:
+			parts := strings.Split(d, "|")
+
 			isHighlight := regexp2.MustCompile(`destaque|highlight`, 1)
-			match, _ := isHighlight.FindStringMatch(data)
+			match, _ := isHighlight.FindStringMatch(parts[0])
 
 			if match != nil {
 				m.Type = "highlight"
@@ -127,11 +147,34 @@ func CreateMarker(data []string) Marker {
 				m.Type = "note"
 			}
 
-			m.Page = ExtractPage(data)
-			m.StartPositon, m.EndPosition = ExtractPositions(data)
+			m.Page = ExtractPage(parts[0])
+			m.StartPositon, m.EndPosition = ExtractPositions(parts[1])
+
+			var dateParts []string
+
+			if m.StartPositon == UNKNOWN {
+				dateParts = strings.Split(parts[1], ",")
+			} else {
+				dateParts = strings.Split(parts[2], ",")
+			}
+
+			date := strings.Split(strings.Trim(dateParts[1], " "), " de ")
+
+			date[0] = fmt.Sprintf("%0*s", 2, date[0])
+
+			date[1] = months[date[1]]
+			date[1] = fmt.Sprintf("%0*s", 2, date[1])
+
+			parsedTime, err := time.Parse("02 01 2006 15:04:05", strings.Join(date, " "))
+
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			m.Timestamp = parsedTime.Unix()
 
 		case ContentLine:
-			m.Content = data
+			m.Content = d
 		}
 	}
 
