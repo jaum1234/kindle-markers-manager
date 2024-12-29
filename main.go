@@ -103,20 +103,21 @@ func CreateMarker(data []string) Marker {
 	return m
 }
 
-func ReadFile(c *gin.Context) {
-	file, _, err := c.Request.FormFile("my-file")
+func RemoveEmptyMarks(buffer [][]string) [][]string {
+	var temp [][]string
 
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
-		return
+	for _, mark := range buffer {
+		for i, line := range mark {
+			if i == ContentLine && !regexp.MustCompile(`^\s*$`).MatchString(line) {
+				temp = append(temp, mark)
+			}
+		}
 	}
 
-	defer file.Close()
+	return temp
+}
 
-	scanner := bufio.NewScanner(file)
-
+func GroupLinesPerMark(scanner *bufio.Scanner) [][]string {
 	var buffer [][]string
 	var temp []string
 
@@ -135,6 +136,24 @@ func ReadFile(c *gin.Context) {
 		}
 	}
 
+	return buffer
+}
+
+func ReadFile(c *gin.Context) {
+	file, _, err := c.Request.FormFile("my-file")
+
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	buffer := GroupLinesPerMark(scanner)
+
 	if err := scanner.Err(); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -142,9 +161,11 @@ func ReadFile(c *gin.Context) {
 		return
 	}
 
+	newBuffer := RemoveEmptyMarks(buffer)
+
 	var markers []Marker
 
-	for _, data := range buffer {
+	for _, data := range newBuffer {
 		markers = append(markers, CreateMarker(data))
 	}
 
