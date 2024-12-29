@@ -73,37 +73,7 @@ func ExtractPositions(line string) (string, string) {
 
 	return start, end
 }
-
-func CreateMarker(data []string) Marker {
-	var m Marker
-
-	for i, line := range data {
-		switch i {
-		case BookLine:
-			m.Author = ExtractAuthor(line)
-			m.Book = ExtractBookTitle(line)
-		case MetadataLine:
-			isHighlight := regexp2.MustCompile(`destaque|highlight`, 1)
-			match, _ := isHighlight.FindStringMatch(line)
-
-			if match != nil {
-				m.Type = "highlight"
-			} else {
-				m.Type = "note"
-			}
-
-			m.Page = ExtractPage(line)
-			m.StartPositon, m.EndPosition = ExtractPositions(line)
-
-		case ContentLine:
-			m.Content = line
-		}
-	}
-
-	return m
-}
-
-func RemoveEmptyMarks(buffer [][]string) [][]string {
+func RemoveEmptyMarks(buffer [][]string, ch chan [][]string) {
 	var temp [][]string
 
 	for _, mark := range buffer {
@@ -114,7 +84,7 @@ func RemoveEmptyMarks(buffer [][]string) [][]string {
 		}
 	}
 
-	return temp
+	ch <- temp
 }
 
 func GroupLinesPerMark(scanner *bufio.Scanner) [][]string {
@@ -139,6 +109,45 @@ func GroupLinesPerMark(scanner *bufio.Scanner) [][]string {
 	return buffer
 }
 
+func CreateMarker(data []string) Marker {
+	var m Marker
+
+	for line, data := range data {
+		switch line {
+		case BookLine:
+			m.Author = ExtractAuthor(data)
+			m.Book = ExtractBookTitle(data)
+		case MetadataLine:
+			isHighlight := regexp2.MustCompile(`destaque|highlight`, 1)
+			match, _ := isHighlight.FindStringMatch(data)
+
+			if match != nil {
+				m.Type = "highlight"
+			} else {
+				m.Type = "note"
+			}
+
+			m.Page = ExtractPage(data)
+			m.StartPositon, m.EndPosition = ExtractPositions(data)
+
+		case ContentLine:
+			m.Content = data
+		}
+	}
+
+	return m
+}
+
+func CreateMarkers(buffer [][]string, ch chan []Marker) {
+	var markers []Marker
+
+	for _, data := range buffer {
+		markers = append(markers, CreateMarker(data))
+	}
+
+	ch <- markers
+}
+
 func ReadFile(c *gin.Context) {
 	file, _, err := c.Request.FormFile("my-file")
 
@@ -161,16 +170,24 @@ func ReadFile(c *gin.Context) {
 		return
 	}
 
-	newBuffer := RemoveEmptyMarks(buffer)
+	ch1 := make(chan [][]string)
 
-	var markers []Marker
+	go RemoveEmptyMarks(buffer[:len(buffer)/2], ch1)
+	go RemoveEmptyMarks(buffer[len(buffer)/2:], ch1)
 
-	for _, data := range newBuffer {
-		markers = append(markers, CreateMarker(data))
-	}
+	x, y := <-ch1, <-ch1
+
+	newBuffer := append(x, y...)
+
+	ch2 := make(chan []Marker)
+
+	go CreateMarkers(newBuffer[:len(newBuffer)/2], ch2)
+	go CreateMarkers(newBuffer[len(newBuffer)/2:], ch2)
+
+	z, w := <-ch2, <-ch2
 
 	c.IndentedJSON(http.StatusOK, gin.H{
-		"data": markers,
+		"data": append(z, w...),
 	})
 }
 
