@@ -1,5 +1,18 @@
+document.querySelector("#my-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const f = new FormData(document.querySelector("#my-form"));
+    
+    const d = await readFile(f);
+
+    renderFilters(d);   
+    renderMarkers(d);
+
+    document.querySelector("#export-md").removeAttribute("hidden");
+});
+
 const readFile = async (f) => {
-    const r = await fetch("/read-file", {
+    const r = await fetch("/files/read", {
         method: "POST",
         body: f
     });
@@ -37,9 +50,6 @@ const renderMarkers = (data) => {
 
 const renderFilters = (data) => {
     return new Promise(r => {
-
-        console.log(data);
-
         ["book"].forEach(el => {
             renderFilter(el, Array.from(new Set(data.map(d => d[el].trim()))));
         });
@@ -53,6 +63,8 @@ const renderFilters = (data) => {
 const renderFilter = (name, items) => {
     return new Promise(r => {
         const list = document.querySelector(`.filter__list--${name}s`);
+
+        list.innerHTML = "";
 
         for (const b of items) {
             const li = document.createElement("li");
@@ -88,16 +100,3 @@ const renderFilter = (name, items) => {
         r();
     });
 }
-
-document.querySelector("#my-form").addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const f = new FormData(document.querySelector("#my-form"));
-    
-    const d = await readFile(f);
-
-    renderFilters(d);   
-    renderMarkers(d);
-
-    document.querySelector("#export-md").removeAttribute("hidden");
-});
