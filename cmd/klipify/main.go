@@ -16,5 +16,5 @@ func main() {
 	r.POST("/files/read", resources.ReadFile)
 	r.GET("/", resources.RenderMainPage)
 
-	r.Run("localhost:8001")
+	r.Run()
 }
