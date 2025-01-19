@@ -1,7 +1,8 @@
-package internal
+package marker
 
 import (
 	"bufio"
+	"coura/kindlemanager/internal/utils"
 	"fmt"
 	"log"
 	"regexp"
@@ -11,21 +12,21 @@ import (
 	"github.com/dlclark/regexp2"
 )
 
-const UNKNOWN string = "unknown"
+const (
+	BookLine = iota
+	MetadataLine
+	ContentLine
+)
 
-var months = map[string]string{
-	"janeiro":   "01",
-	"fevereiro": "02",
-	"março":     "03",
-	"abril":     "04",
-	"maio":      "05",
-	"junho":     "06",
-	"julho":     "07",
-	"agosto":    "08",
-	"setembro":  "09",
-	"outubro":   "10",
-	"novembro":  "11",
-	"dezembro":  "12",
+type Marker struct {
+	Type         string `json:"type"`
+	Page         string `json:"page"`
+	StartPositon string `json:"startPosition"`
+	EndPosition  string `json:"endPosition"`
+	Content      string `json:"content"`
+	Timestamp    int64  `json:"timestamp"`
+	Book         string `json:"book"`
+	Author       string `json:"author"`
 }
 
 type ByTimestamp []Marker
@@ -42,27 +43,78 @@ func (m ByTimestamp) Swap(i, j int) {
 	m[i], m[j] = m[j], m[i]
 }
 
-func MatchOrUnknown(text string, pattern string) string {
-	res := regexp2.MustCompile(pattern, 1)
-	matches, _ := res.FindStringMatch(text)
+func CreateMarkers(buffer [][]string, ch chan []Marker) {
+	var markers []Marker
 
-	if matches != nil {
-		return matches.String()
+	for _, data := range buffer {
+		markers = append(markers, CreateMarker(data))
 	}
 
-	return UNKNOWN
+	ch <- markers
+}
+
+func CreateMarker(data []string) Marker {
+	var m Marker
+
+	for line, d := range data {
+		switch line {
+		case BookLine:
+			m.Author = ExtractAuthor(d)
+			m.Book = ExtractBookTitle(d)
+		case MetadataLine:
+			parts := strings.Split(d, "|")
+
+			isHighlight := regexp2.MustCompile(`destaque|highlight`, 1)
+			match, _ := isHighlight.FindStringMatch(parts[0])
+
+			if match != nil {
+				m.Type = "highlight"
+			} else {
+				m.Type = "note"
+			}
+
+			m.Page = ExtractPage(parts[0])
+			m.StartPositon, m.EndPosition = ExtractPositions(parts[1])
+
+			if len(parts) == 2 {
+				m.Timestamp = CalculateTimestamp(parts[1])
+			} else {
+				m.Timestamp = CalculateTimestamp(parts[2])
+			}
+
+		case ContentLine:
+			m.Content = d
+		}
+	}
+
+	return m
+}
+
+var months = map[string]string{
+	"janeiro":   "01",
+	"fevereiro": "02",
+	"março":     "03",
+	"abril":     "04",
+	"maio":      "05",
+	"junho":     "06",
+	"julho":     "07",
+	"agosto":    "08",
+	"setembro":  "09",
+	"outubro":   "10",
+	"novembro":  "11",
+	"dezembro":  "12",
 }
 
 func ExtractAuthor(line string) string {
-	return MatchOrUnknown(line, `(?<=\().+(?=\))`)
+	return utils.MatchOrUnknown(line, `(?<=\().+(?=\))`)
 }
 
 func ExtractBookTitle(line string) string {
-	return MatchOrUnknown(line, `.+(?= \()`)
+	return utils.MatchOrUnknown(line, `.+(?= \()`)
 }
 
 func ExtractPage(line string) string {
-	return MatchOrUnknown(line, `(?<=página|page) \d+(-\d+)?`)
+	return utils.MatchOrUnknown(line, `(?<=página|page) \d+(-\d+)?`)
 }
 
 func ExtractPositions(line string) (string, string) {
@@ -71,7 +123,7 @@ func ExtractPositions(line string) (string, string) {
 	matches, _ := position.FindStringMatch(line)
 
 	if matches == nil {
-		return UNKNOWN, UNKNOWN
+		return utils.UNKNOWN, utils.UNKNOWN
 	}
 
 	split := strings.Split(matches.String(), "-")

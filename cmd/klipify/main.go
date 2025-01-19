@@ -1,7 +1,7 @@
 package main
 
 import (
-	"coura/kindlemanager/internal/http/resources"
+	"coura/kindlemanager/internal/http/resources/files"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,8 +13,8 @@ func main() {
 
 	r.Static("/web/static", "web/static/")
 
-	r.POST("/files/read", resources.ReadFile)
-	r.GET("/", resources.RenderMainPage)
+	r.POST("/files/read", files.ReadFile)
+	r.GET("/", files.RenderMainPage)
 
 	r.Run()
 }

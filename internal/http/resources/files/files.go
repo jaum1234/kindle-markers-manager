@@ -1,8 +1,8 @@
-package resources
+package files
 
 import (
 	"bufio"
-	"coura/kindlemanager/internal"
+	"coura/kindlemanager/internal/marker"
 	"net/http"
 	"sort"
 
@@ -26,7 +26,7 @@ func ReadFile(c *gin.Context) {
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
-	buffer := internal.GroupLinesPerMark(scanner)
+	buffer := marker.GroupLinesPerMark(scanner)
 
 	if err := scanner.Err(); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{
@@ -37,23 +37,23 @@ func ReadFile(c *gin.Context) {
 
 	ch1 := make(chan [][]string)
 
-	go internal.RemoveEmptyMarks(buffer[:len(buffer)/2], ch1)
-	go internal.RemoveEmptyMarks(buffer[len(buffer)/2:], ch1)
+	go marker.RemoveEmptyMarks(buffer[:len(buffer)/2], ch1)
+	go marker.RemoveEmptyMarks(buffer[len(buffer)/2:], ch1)
 
 	x, y := <-ch1, <-ch1
 
 	newBuffer := append(x, y...)
 
-	ch2 := make(chan []internal.Marker)
+	ch2 := make(chan []marker.Marker)
 
-	go internal.CreateMarkers(newBuffer[:len(newBuffer)/2], ch2)
-	go internal.CreateMarkers(newBuffer[len(newBuffer)/2:], ch2)
+	go marker.CreateMarkers(newBuffer[:len(newBuffer)/2], ch2)
+	go marker.CreateMarkers(newBuffer[len(newBuffer)/2:], ch2)
 
 	z, w := <-ch2, <-ch2
 
 	markers := append(z, w...)
 
-	sort.Sort(internal.ByTimestamp(markers))
+	sort.Sort(marker.ByTimestamp(markers))
 
 	c.IndentedJSON(http.StatusOK, gin.H{
 		"data": markers,
