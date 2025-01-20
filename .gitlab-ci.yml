@@ -1,0 +1,12 @@
+stages:
+  - test
+
+variables:
+  GO11MODULE: "on"
+
+test:
+  stage: test
+  image: golang:1.23
+  script:
+    - go mod tidy
+    - go test -v test/*
