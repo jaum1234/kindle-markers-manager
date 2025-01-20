@@ -10,4 +10,4 @@ COPY . .
 
 RUN go build -v -o ./build/app ./cmd/klippify
 
-CMD ["build/main"]
+CMD ["build/app"]
