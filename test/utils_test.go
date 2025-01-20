@@ -12,7 +12,7 @@ func TestMatchOrUnknown(t *testing.T) {
 		a, b     string
 		expected string
 	}{
-		{"Should extract the string 'World' from 'Hello, World!'", "Hello, World!", "World", "World"},
+		{"Should extract the string", "Hello, World!", "World", "World"},
 		{"Should return 'UNKNOWN' when the string is not found", "Hello, World!", "Dog", utils.UNKNOWN},
 	}
 

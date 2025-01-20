@@ -11,9 +11,9 @@ func TestExtractPositions(t *testing.T) {
 		l          string
 		start, end string
 	}{
-		{"Should extract the positions 1011 and 1013", "Seu destaque na página 66 | posição 1011-1013 | Adicionado: segunda-feira, 21 de outubro de 2024 17:32:25", "1011", "1013"},
-		{"Should extract the positions 1 and 3", "Seu destaque na página 66 | posição 1-3 | Adicionado: segunda-feira, 21 de outubro de 2024 17:32:25", "1", "3"},
-		{"Should extract the positoins 2 and 4", "You Highlight on page 20 | Location 2-4 | Added on Monday, October 21, 2024 5:32:25 PM", "2", "4"},
+		{"Should extract the positions when the input is in potuguese.", "Seu destaque na página 66 | posição 1011-1013 | Adicionado: segunda-feira, 21 de outubro de 2024 17:32:25", "1011", "1013"},
+		{"Should extract the positions when the input is in potuguese and the positinos have only one digit.", "Seu destaque na página 66 | posição 1-3 | Adicionado: segunda-feira, 21 de outubro de 2024 17:32:25", "1", "3"},
+		{"Should extract the positions when the input it in english.", "You Highlight on page 20 | Location 2-4 | Added on Monday, October 21, 2024 5:32:25 PM", "2", "4"},
 	}
 
 	for _, tt := range tests {
@@ -33,8 +33,8 @@ func TestExtractPage(t *testing.T) {
 		l        string
 		expected string
 	}{
-		{"Should extract the page 66", "Seu destaque na página 66 | posição 1011-1013 | Adicionado: segunda-feira, 21 de outubro de 2024 17:32:25", "66"},
-		{"Should extract the page 20", "You Highlight on page 20 | Location 2-4 | Added on Monday, October 21, 2024 5:32:25 PM", "20"},
+		{"Should extract the page when the input is in portuguese.", "Seu destaque na página 66 | posição 1011-1013 | Adicionado: segunda-feira, 21 de outubro de 2024 17:32:25", "66"},
+		{"Should extract the page when the input is in english.", "You Highlight on page 20 | Location 2-4 | Added on Monday, October 21, 2024 5:32:25 PM", "20"},
 	}
 
 	for _, tt := range tests {
@@ -54,7 +54,7 @@ func TestExtractBookTitle(t *testing.T) {
 		l        string
 		expected string
 	}{
-		{"Should extract the book title 'Computer Networking: A Top-Down Approach, 7/e'", "Computer Networking: A Top-Down Approach, 7/e (James Kurose;Keith Ross)", "Computer Networking: A Top-Down Approach, 7/e"},
+		{"Should extract the book title.", "Computer Networking: A Top-Down Approach, 7/e (James Kurose;Keith Ross)", "Computer Networking: A Top-Down Approach, 7/e"},
 	}
 
 	for _, tt := range tests {
@@ -74,7 +74,7 @@ func TestCalculateTimestamp(t *testing.T) {
 		l        string
 		expected int64
 	}{
-		{"Should calculate the timestamp 1729531945", "Seu destaque na página 66 | posição 1011-1013 | Adicionado: segunda-feira, 21 de outubro de 2024 17:32:25", 1729531945},
+		{"Should calculate the timestamp based on the date that the marking was done.", "Seu destaque na página 66 | posição 1011-1013 | Adicionado: segunda-feira, 21 de outubro de 2024 17:32:25", 1729531945},
 	}
 
 	for _, tt := range tests {
