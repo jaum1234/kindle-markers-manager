@@ -48,6 +48,26 @@ func TestExtractPage(t *testing.T) {
 	}
 }
 
+func TestExtractBookTitle(t *testing.T) {
+	tests := []struct {
+		name     string
+		l        string
+		expected string
+	}{
+		{"Should extract the book title 'Computer Networking: A Top-Down Approach, 7/e'", "Computer Networking: A Top-Down Approach, 7/e (James Kurose;Keith Ross)", "Computer Networking: A Top-Down Approach, 7/e"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := marker.ExtractBookTitle(tt.l)
+
+			if result != tt.expected {
+				t.Errorf("Expected %s, got %s", tt.expected, result)
+			}
+		})
+	}
+}
+
 func TestCalculateTimestamp(t *testing.T) {
 	tests := []struct {
 		name     string
