@@ -114,7 +114,7 @@ func ExtractBookTitle(line string) string {
 }
 
 func ExtractPage(line string) string {
-	return utils.MatchOrUnknown(line, `(?<=página|page) \d+(-\d+)?`)
+	return utils.MatchOrUnknown(line, `(?<=página |page )\d+(-\d+)?`)
 }
 
 func ExtractPositions(line string) (string, string) {

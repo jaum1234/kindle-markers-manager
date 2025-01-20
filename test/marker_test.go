@@ -13,6 +13,7 @@ func TestExtractPositions(t *testing.T) {
 	}{
 		{"Should extract the positions 1011 and 1013", "Seu destaque na página 66 | posição 1011-1013 | Adicionado: segunda-feira, 21 de outubro de 2024 17:32:25", "1011", "1013"},
 		{"Should extract the positions 1 and 3", "Seu destaque na página 66 | posição 1-3 | Adicionado: segunda-feira, 21 de outubro de 2024 17:32:25", "1", "3"},
+		{"Should extract the positoins 2 and 4", "You Highlight on page 20 | Location 2-4 | Added on Monday, October 21, 2024 5:32:25 PM", "2", "4"},
 	}
 
 	for _, tt := range tests {
@@ -21,6 +22,27 @@ func TestExtractPositions(t *testing.T) {
 
 			if start != tt.start || end != tt.end {
 				t.Errorf("Expected %s-%s, got %s-%s", tt.start, tt.end, start, end)
+			}
+		})
+	}
+}
+
+func TestExtractPage(t *testing.T) {
+	tests := []struct {
+		name     string
+		l        string
+		expected string
+	}{
+		{"Should extract the page 66", "Seu destaque na página 66 | posição 1011-1013 | Adicionado: segunda-feira, 21 de outubro de 2024 17:32:25", "66"},
+		{"Should extract the page 20", "You Highlight on page 20 | Location 2-4 | Added on Monday, October 21, 2024 5:32:25 PM", "20"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := marker.ExtractPage(tt.l)
+
+			if result != tt.expected {
+				t.Errorf("Expected %s, got %s", tt.expected, result)
 			}
 		})
 	}
