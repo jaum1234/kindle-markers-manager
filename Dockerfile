@@ -8,6 +8,6 @@ RUN go mod download && go mod verify
 
 COPY . .
 
-RUN go build -v -o ./build/app ./cmd/klipify
+RUN go build -v -o ./build/app ./cmd/klippify
 
 CMD ["build/main"]
