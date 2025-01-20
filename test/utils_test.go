@@ -6,21 +6,23 @@ import (
 )
 
 func TestMatchOrUnknown(t *testing.T) {
-	str, ptr := "Hello, World!", "World"
-	expected := "World"
 
-	result := utils.MatchOrUnknown(str, ptr)
-
-	if result != expected {
-		t.Errorf("Expected %s, got %s", expected, result)
+	tests := []struct {
+		name     string
+		a, b     string
+		expected string
+	}{
+		{"Should extract the string 'World' from 'Hello, World!'", "Hello, World!", "World", "World"},
+		{"Should return 'UNKNOWN' when the string is not found", "Hello, World!", "Dog", utils.UNKNOWN},
 	}
 
-	str, ptr = "Hello, World!", "Dog"
-	expected = utils.UNKNOWN
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := utils.MatchOrUnknown(tt.a, tt.b)
 
-	result = utils.MatchOrUnknown(str, ptr)
-
-	if result != expected {
-		t.Errorf("Expected %s, got %s", expected, result)
+			if result != tt.expected {
+				t.Errorf("Expected %s, got %s", tt.expected, result)
+			}
+		})
 	}
 }
