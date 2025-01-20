@@ -2,7 +2,7 @@ package marker
 
 import (
 	"bufio"
-	"coura/kindlemanager/internal/utils"
+	"coura/klippify/internal/utils"
 	"fmt"
 	"log"
 	"regexp"

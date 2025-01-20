@@ -1,7 +1,7 @@
 package test
 
 import (
-	"coura/kindlemanager/internal/marker"
+	"coura/klippify/internal/marker"
 	"testing"
 )
 

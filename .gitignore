@@ -9,6 +9,7 @@
 *.dylib
 
 build/main
+deployments
 
 # Test binary, built with `go test -c`
 *.test

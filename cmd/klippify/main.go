@@ -1,7 +1,7 @@
 package main
 
 import (
-	"coura/kindlemanager/internal/http/resources/files"
+	"coura/klippify/internal/http/resources/files"
 
 	"github.com/gin-gonic/gin"
 )

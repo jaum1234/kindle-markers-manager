@@ -2,7 +2,7 @@ package files
 
 import (
 	"bufio"
-	"coura/kindlemanager/internal/marker"
+	"coura/klippify/internal/marker"
 	"net/http"
 	"sort"
 
