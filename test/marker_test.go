@@ -69,6 +69,27 @@ func TestExtractBookTitle(t *testing.T) {
 	}
 }
 
+func TestExtractAuthor(t *testing.T) {
+	tests := []struct {
+		name     string
+		l        string
+		expected string
+	}{
+		{"Should extract the author when between parentheses.", "Computer Networking: A Top-Down Approach, 7/e (James Kurose;Keith Ross)", "James Kurose;Keith Ross"},
+		{"Should extract the author when preceded by dash.", "Computer Networking: A Top-Down Approach, 7/e - James Kurose;Keith Ross", "James Kurose;Keith Ross"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := marker.ExtractAuthor(tt.l)
+
+			if result != tt.expected {
+				t.Errorf("Expected %s, got %s", tt.expected, result)
+			}
+		})
+	}
+}
+
 func TestCalculateTimestamp(t *testing.T) {
 	tests := []struct {
 		name     string
