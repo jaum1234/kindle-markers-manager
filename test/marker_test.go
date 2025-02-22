@@ -54,7 +54,8 @@ func TestExtractBookTitle(t *testing.T) {
 		l        string
 		expected string
 	}{
-		{"Should extract the book title.", "Computer Networking: A Top-Down Approach, 7/e (James Kurose;Keith Ross)", "Computer Networking: A Top-Down Approach, 7/e"},
+		{"Should extract the book title when succeeded by parentheses.", "Computer Networking: A Top-Down Approach, 7/e (James Kurose;Keith Ross)", "Computer Networking: A Top-Down Approach, 7/e"},
+		{"Should extract the book title when succeeded by dash.", "Computer Networking: A Top-Down Approach, 7/e - James Kurose;Keith Ross", "Computer Networking: A Top-Down Approach, 7/e"},
 	}
 
 	for _, tt := range tests {
