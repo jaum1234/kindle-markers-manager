@@ -108,21 +108,21 @@ var months = map[string]string{
 func ExtractAuthor(line string) string {
 	author := utils.MatchOrUnknown(line, `(?<=\().+(?=\))`)
 
-	if author == utils.UNKNOWN {
-		author = utils.MatchOrUnknown(line, `(?<=- ).+`)
+	if author != utils.UNKNOWN {
+		return author
 	}
 
-	return author
+	return utils.MatchOrUnknown(line, `(?<=- ).+`)
 }
 
 func ExtractBookTitle(line string) string {
 	title := utils.MatchOrUnknown(line, `.+(?= \()`)
 
-	if title == utils.UNKNOWN {
-		title = utils.MatchOrUnknown(line, `.+(?= -)`)
+	if title != utils.UNKNOWN {
+		return title
 	}
 
-	return title
+	return utils.MatchOrUnknown(line, `.+(?= -)`)
 }
 
 func ExtractPage(line string) string {
