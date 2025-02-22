@@ -116,13 +116,19 @@ func ExtractAuthor(line string) string {
 }
 
 func ExtractBookTitle(line string) string {
-	title := utils.MatchOrUnknown(line, `.+(?= \()`)
+	first := utils.MatchOrUnknown(line, `.+(?= \()`)
 
-	if title != utils.UNKNOWN {
-		return title
+	if first != utils.UNKNOWN {
+		return first
 	}
 
-	return utils.MatchOrUnknown(line, `.+(?= -)`)
+	second := utils.MatchOrUnknown(line, `.+(?= -)`)
+
+	if second != utils.UNKNOWN {
+		return second
+	}
+
+	return utils.MatchOrUnknown(line, `.+`)
 }
 
 func ExtractPage(line string) string {
