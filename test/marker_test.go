@@ -56,6 +56,7 @@ func TestExtractBookTitle(t *testing.T) {
 	}{
 		{"Should extract the book title when succeeded by parentheses.", "Computer Networking: A Top-Down Approach, 7/e (James Kurose;Keith Ross)", "Computer Networking: A Top-Down Approach, 7/e"},
 		{"Should extract the book title when succeeded by dash.", "Computer Networking: A Top-Down Approach, 7/e - James Kurose;Keith Ross", "Computer Networking: A Top-Down Approach, 7/e"},
+		{"Should extract the book title when there is no parentheses or dash.", "Computer Networking: A Top-Down Approach, 7/e", "Computer Networking: A Top-Down Approach, 7/e"},
 	}
 
 	for _, tt := range tests {
