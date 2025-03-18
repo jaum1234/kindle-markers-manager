@@ -10,3 +10,5 @@ const extractAuthor = (line: string): string => {
 
     return matchOrUnkown(line, /(?<=- ).+/);
 }
+
+export { extractAuthor };
