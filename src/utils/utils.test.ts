@@ -1,5 +1,5 @@
 import { UNKNOWN } from "../constants";
-import { matchOrUnkown } from "./utils";
+import { matchOrUnkown, monthToNumber } from "./utils";
 
 describe("Unit tests for utils", () => {
     it("Should match the pattern", () => {
@@ -15,6 +15,24 @@ describe("Unit tests for utils", () => {
         const pattern = /Goodbye/;
 
         const result = matchOrUnkown(text, pattern);
+        expect(result).toBe(UNKNOWN);
+    });
+
+    it("Should convert portuguese month to number", () => {
+        const month = "janeiro";
+        const result = monthToNumber(month, "pt");
+        expect(result).toBe("01");
+    });
+
+    it("Should convert english month to number", () => {
+        const month = "january";
+        const result = monthToNumber(month);
+        expect(result).toBe("01");
+    });
+
+    it("Should return UNKNOWN when the month is not found", () => {
+        const month = "not-a-month";
+        const result = monthToNumber(month);
         expect(result).toBe(UNKNOWN);
     });
 });

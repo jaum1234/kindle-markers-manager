@@ -23,7 +23,7 @@ const monthToNumber = (month: string, language: string = "en"): string => {
     return months.reduce((obj, key, index) => {
         obj[key] = numbers[index];
         return obj;
-    }, {} as { [key: string]: string })[month.toLowerCase()];
+    }, {} as { [key: string]: string })[month.toLowerCase()] ?? UNKNOWN;
 }
 
 const matchOrUnkown = (text: string, pattern: RegExp): string => {
