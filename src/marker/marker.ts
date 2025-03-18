@@ -11,4 +11,20 @@ const extractAuthor = (line: string): string => {
     return matchOrUnkown(line, /(?<=- ).+/);
 }
 
-export { extractAuthor };
+const extractBookTitle = (line: string): string => {
+    const first = matchOrUnkown(line, /.+(?= \()/);
+
+    if (first !== UNKNOWN) {
+        return first;
+    }
+
+    const second = matchOrUnkown(line, /.+(?= -)/);
+
+    if (second !== UNKNOWN) {
+        return second;
+    }
+
+    return matchOrUnkown(line, /.+/);
+}
+
+export { extractAuthor, extractBookTitle };
