@@ -1,7 +1,10 @@
 import express from 'express';
+import { getEnvVar } from './helpers/dotenv';
 
 const app = express();
 
-app.listen(3000, () => {
-    console.log("Listening on port 3000");
+const port = getEnvVar("APP_PORT");
+
+app.listen(port, () => {
+    console.log(`Listening on port ${port}`);
 });
