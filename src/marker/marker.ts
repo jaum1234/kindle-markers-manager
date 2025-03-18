@@ -31,4 +31,25 @@ const extractPage = (line: string): string => {
     return matchOrUnkown(line, /(?<=página |page )\d+(-\d+)?/);
 }
 
-export { extractAuthor, extractBookTitle, extractPage };
+const extractPositions = (line: string): Array<string> => {
+    const position = matchOrUnkown(line, /(?<=posição|location) \d+(-\d+)?/);
+
+    if (position === null) {
+        return [UNKNOWN, UNKNOWN];
+    }
+
+    const split = position.split("-");
+
+    const start = split[0].trim();
+    let end: string;
+
+    if (split.length === 1) {
+        end = start;
+    } else {
+        end = split[1].trim();
+    }
+
+    return [start, end];
+}
+
+export { extractAuthor, extractBookTitle, extractPage, extractPositions };
