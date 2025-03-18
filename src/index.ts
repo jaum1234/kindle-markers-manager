@@ -1,5 +1,5 @@
 import express from 'express';
-import { getEnvVar } from './helpers/dotenv';
+import { getEnvVar } from './dotenv/dotenv';
 
 const app = express();
 
