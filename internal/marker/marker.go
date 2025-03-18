@@ -90,7 +90,22 @@ func CreateMarker(data []string) Marker {
 	return m
 }
 
-var months = map[string]string{
+var englishMonths = map[string]string{
+	"january":   "01",
+	"february":  "02",
+	"march":     "03",
+	"april":     "04",
+	"may":       "05",
+	"june":      "06",
+	"july":      "07",
+	"august":    "08",
+	"september": "09",
+	"october":   "10",
+	"november":  "11",
+	"december":  "12",
+}
+
+var portugueseMonths = map[string]string{
 	"janeiro":   "01",
 	"fevereiro": "02",
 	"março":     "03",
@@ -161,19 +176,34 @@ func ExtractPositions(line string) (string, string) {
 func CalculateTimestamp(str string) int64 {
 	dateParts := strings.Split(str, ",")
 
-	date := strings.Split(strings.Trim(dateParts[1], " "), " de ")
+	englishInput := len(dateParts) == 3
+
+	date := make([]string, 3);
+	
+	var format string
+
+	if (!englishInput) {
+		date = strings.Split(strings.Trim(dateParts[1], " "), " de ")
+		date[1] = portugueseMonths[date[1]]
+
+		format = "02 01 2006 15:04:05"
+	} else {
+		date[1] = strings.Split(strings.Trim(dateParts[1], " "), " ")[1]
+		date[0] = englishMonths[strings.ToLower(strings.Split(strings.Trim(dateParts[1], " "), " ")[0])]
+		date[2] = strings.Trim(dateParts[2], " ")
+
+		format = "01 02 2006 3:04:05 PM"
+	}
 
 	date[0] = fmt.Sprintf("%0*s", 2, date[0])
-
-	date[1] = months[date[1]]
-	date[1] = fmt.Sprintf("%0*s", 2, date[1])
-
-	parsedTime, err := time.Parse("02 01 2006 15:04:05", strings.Join(date, " "))
-
+	date[1] = fmt.Sprintf("%0*s", 2, date[1])	
+	fmt.Println(date)
+	parsedTime, err := time.Parse(format, strings.Join(date, " "))
+	
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	
 	return parsedTime.Unix()
 }
 
