@@ -27,4 +27,8 @@ const extractBookTitle = (line: string): string => {
     return matchOrUnkown(line, /.+/);
 }
 
-export { extractAuthor, extractBookTitle };
+const extractPage = (line: string): string => {
+    return matchOrUnkown(line, /(?<=página |page )\d+(-\d+)?/);
+}
+
+export { extractAuthor, extractBookTitle, extractPage };
