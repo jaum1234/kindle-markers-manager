@@ -31,7 +31,7 @@ const extractPage = (line: string): string => {
     return matchOrUnkown(line, /(?<=página |page )\d+(-\d+)?/);
 }
 
-const extractPositions = (line: string): Array<string> => {
+const extractPositions = (line: string): [string, string] => {
     const position = matchOrUnkown(line, /(?<=posição|location) \d+(-\d+)?/);
 
     if (position === null) {
