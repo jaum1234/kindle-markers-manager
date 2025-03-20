@@ -1,13 +1,24 @@
-FROM golang:1.23
+FROM node:22-alpine AS builder
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
-COPY go.mod go.sum ./
+COPY package*.json .
 
-RUN go mod download && go mod verify
+RUN npm ci
 
 COPY . .
 
-RUN go build -v -o ./build/app ./cmd/klippify
+RUN npm run build
 
-CMD ["build/app"]
+FROM node:22-alpine
+
+WORKDIR /app
+
+COPY --from=builder /app/package*.json .
+COPY --from=builder /app/dist ./dist
+
+RUN npm ci --production
+
+EXPOSE 3000
+
+CMD ["node", "dist/index.js"]
