@@ -1,5 +1,7 @@
+import RawClipping from "../raw_clipping/raw_clipping.service";
+
 interface File {
-    parse(): string[];
+    parse(): Promise<RawClipping[]>;
 }
 
 export default File;

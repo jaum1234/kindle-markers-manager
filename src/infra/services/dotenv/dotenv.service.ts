@@ -1,3 +1,4 @@
+import "dotenv/config";
 import DotenvInterface from '../../../domain/services/dotenv/dotenv.service';
 
 class DotenvService implements DotenvInterface {
