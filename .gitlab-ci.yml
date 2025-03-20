@@ -1,17 +1,22 @@
+default:
+  image: node:22
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-npm
+    paths:
+      - .npm/
+ 
+  before_script:
+    - npm ci --cache .npm --prefer--offline
+
 stages:
   - test
   - publish
   - deploy
 
-variables:
-  GO11MODULE: "on"
-
 test:
   stage: test
-  image: golang:1.23
   script:
-    - go mod tidy
-    - go test -v test/*
+    - npm test
 
 publish:
   stage: publish
