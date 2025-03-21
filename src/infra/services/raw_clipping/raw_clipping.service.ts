@@ -63,6 +63,8 @@ class RawClipping implements RawClippingInterface {
     }
 
     public extractContent(): string {
+        console.log(this.line);
+
         return this.line.split(/\r?\n/)[3].trim();
     }
 
@@ -102,10 +104,13 @@ class RawClipping implements RawClippingInterface {
             year = dateParts[2].trim().split(" ")[0];
             hour = dateParts[2].trim().split(" ")[1] + " " + dateParts[2].trim().split(" ")[2];
 
-            format = `${month} ${day} ${year} ${hour}`;
+            format = `${month}/${day}/${year} ${hour}`;
         }
 
-        return Math.floor(new Date(format).getTime()/1000);
+        const date = new Date(format);
+        // const userTimezoneOffset = date.getTimezoneOffset() * 60000;     
+        
+        return Math.floor((date.getTime())/1000);
     }
 
     public toString = (): string => {

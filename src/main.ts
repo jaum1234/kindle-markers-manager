@@ -12,7 +12,8 @@ const main = ({
     }
     port: string
 }) => {
-    app.put("/import-clippings", clippingsController.importClippings);
+    app.get("/", clippingsController.renderMainPage);
+    app.put("/clippings/import-clipping", clippingsController.importClippings);
 
     app.listen(port, () => {
         console.log(`Listening on port ${port}`);

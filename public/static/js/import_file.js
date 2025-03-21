@@ -12,8 +12,8 @@ document.querySelector("#my-form").addEventListener("submit", async (e) => {
 });
 
 const readFile = async (f) => {
-    const r = await fetch("/files/read", {
-        method: "POST",
+    const r = await fetch("/clippings/import-clipping", {
+        method: "PUT",
         body: f
     });
 
