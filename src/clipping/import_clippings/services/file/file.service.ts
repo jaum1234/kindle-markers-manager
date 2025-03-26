@@ -1,8 +1,8 @@
 import { Readable } from "stream";
-import File from "../../../domain/services/file/file.service";
+import { File as IFile } from "../../types/file.type";
 import RawClipping from "../raw_clipping/raw_clipping.service";
 
-class MyClippingsFile implements File {
+class File implements IFile {
     public constructor(
         private file: Readable
     ) {}
@@ -24,7 +24,6 @@ class MyClippingsFile implements File {
             });
         });
     }
-
 }
 
-export default MyClippingsFile;
+export default File;

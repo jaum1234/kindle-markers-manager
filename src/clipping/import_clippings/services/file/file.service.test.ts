@@ -1,8 +1,8 @@
 import { Readable } from "stream";
 import RawClipping from "../raw_clipping/raw_clipping.service";
-import MyClippingsFile from "./my_clippings_file.service";
+import MyClippingsFile from "./file.service";
 
-describe("TestMyClippingsFile", () => {
+describe("TestFile", () => {
     describe("parse()", () => {
         it("Should parse a MyClippings file", async () => {
             const f = [

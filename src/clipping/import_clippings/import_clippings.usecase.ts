@@ -1,6 +1,6 @@
-import Clipping from "../../entities/clipping.entity";
-import File from "../../services/file/file.service";
-import RawClipping from "../../services/raw_clipping/raw_clipping.service";
+import Clipping from "../clipping.entity";
+import { File } from "./types/file.type";
+import { RawClipping } from "./types/raw_clipping.type";
 
 const importClippings = async (file: File): Promise<Clipping[]> => {
     const parsed = await file.parse();
@@ -19,6 +19,6 @@ const importClippings = async (file: File): Promise<Clipping[]> => {
             r.extractAuthor()
         )
     });
-}
+};
 
 export default importClippings;

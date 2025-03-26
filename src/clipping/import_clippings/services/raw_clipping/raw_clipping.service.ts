@@ -1,8 +1,8 @@
-import RawClippingInterface from "../../../domain/services/raw_clipping/raw_clipping.service";
-import { UNKNOWN } from "../../constants";
-import { matchOrUnkown, monthToNumber } from "../../utils/utils";
+import { UNKNOWN } from "../../../../constants";
+import { RawClipping as IRawClipping } from "../../types/raw_clipping.type";
+import { matchOrUnkown, monthToNumber } from "../../utils/import_clippings.utils";
 
-class RawClipping implements RawClippingInterface {
+class RawClipping implements IRawClipping {
     public constructor(
         private line: string
     ) {}
@@ -63,8 +63,6 @@ class RawClipping implements RawClippingInterface {
     }
 
     public extractContent(): string {
-        console.log(this.line);
-
         return this.line.split(/\r?\n/)[3].trim();
     }
 

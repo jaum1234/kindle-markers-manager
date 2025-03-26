@@ -1,5 +1,6 @@
-import { UNKNOWN } from "../constants";
-import { matchOrUnkown, monthToNumber } from "./utils";
+import { UNKNOWN } from "../../../constants";
+import { matchOrUnkown, monthToNumber } from "./import_clippings.utils";
+
 
 describe("Unit tests for utils", () => {
     it("Should match the pattern", () => {
