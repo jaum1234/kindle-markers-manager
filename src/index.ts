@@ -1,4 +1,4 @@
-const { importClippings, renderPage } = require("@klippify/domain/clipping/import_clippings/controller/import_clippings.controller");
+const { importClippings, renderPage } = require("./domain/clipping/import_clippings/controller/import_clippings.controller");
 import app from "./server";
 import Dotenv from './shared/dotenv.service';
 
