@@ -1,14 +1,12 @@
-import ClippingsController from './infra/controllers/clippings/clippings.controller';
-import DotenvService from './infra/services/dotenv/dotenv.service';
-import main from './main';
+const { importClippings, renderPage } = require("@klippify/domain/clipping/import_clippings/controller/import_clippings.controller");
+import app from "./server";
+import Dotenv from './shared/dotenv.service';
 
-const env = new DotenvService();
+app.get("/", renderPage());
+app.put("/clippings/import-clipping", importClippings());
 
-const clippingsController = new ClippingsController();
+const port = Dotenv.get("APP_PORT");
 
-main({
-    controllers: {
-        clippingsController,
-    },
-    port: env.get('APP_PORT') as string
+app.listen(port, () => {
+    console.log(`Listening on port ${port}.`);
 });
