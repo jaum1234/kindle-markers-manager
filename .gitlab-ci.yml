@@ -1,12 +1,5 @@
 default:
   image: node:22
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}-npm
-    paths:
-      - .npm/
- 
-  before_script:
-    - npm ci --cache .npm --prefer--offline
 
 stages:
   - test
@@ -17,6 +10,13 @@ test:
   stage: test
   script:
     - npm test
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-npm
+    paths:
+      - .npm/
+ 
+  before_script:
+    - npm ci --cache .npm --prefer--offline  
 
 publish:
   stage: publish
