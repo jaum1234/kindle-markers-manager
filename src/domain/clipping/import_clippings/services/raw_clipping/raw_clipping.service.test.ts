@@ -171,8 +171,11 @@ describe("TestRawClipping", () => {
             "Today’s Internet is arguably the largest engineered system",
         ].join("\r\n");
 
+        const exp = (new Date("2024-10-21 17:32:25")).getTime()/1000;
+        
+
         const raw = new RawClipping(input);
-        expect(raw.calculateTimestamp()).toBe(1729542745);
+        expect(raw.calculateTimestamp()).toBe(exp);
     });
 
     it("Should calculate the timestamp when the input is in english", () => {
@@ -183,8 +186,10 @@ describe("TestRawClipping", () => {
             "Today’s Internet is arguably the largest engineered system",
         ].join("\r\n");
 
+        const exp = (new Date("10-21-2024 05:32:25 PM")).getTime()/1000;
+
         const raw = new RawClipping(input);
-        expect(raw.calculateTimestamp()).toBe(1729542745);
+        expect(raw.calculateTimestamp()).toBe(exp);
     });
 
 });
