@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 const Dotenv = {
     get(key: string) {
         return process.env[key];
