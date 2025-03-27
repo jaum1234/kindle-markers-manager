@@ -39,6 +39,6 @@ deploy:
     - ssh -i $SERVER_KEY -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY"
     - ssh -i $SERVER_KEY -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME"
     - ssh -i $SERVER_KEY -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker container rm -f klippify || true"
-    - ssh -i $SERVER_KEY -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker run -d -p $APP_PORT:$APP_PORT -e APP_PORT=$APP_PORT --name klippify $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME"
+    - ssh -i $SERVER_KEY -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker run -d -p $HTTP_PORT:$APP_PORT -e APP_PORT=$APP_PORT --name klippify $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME"
 
 
