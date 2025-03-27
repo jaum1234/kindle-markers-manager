@@ -63,7 +63,7 @@ class RawClipping implements IRawClipping {
     }
 
     public extractContent(): string {
-        return this.line.split(/\r?\n/)[3].trim();
+        return this.line.split(/\r?\n/)[3]?.trim();
     }
 
     public calculateTimestamp = (): number => {
