@@ -106,9 +106,8 @@ class RawClipping implements IRawClipping {
         }
 
         const date = new Date(format);
-        // const userTimezoneOffset = date.getTimezoneOffset() * 60000;     
         
-        return Math.floor((date.getTime())/1000);
+        return Math.floor(date.getTime()/1000);
     }
 
     public toString = (): string => {
