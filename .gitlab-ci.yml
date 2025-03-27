@@ -1,12 +1,5 @@
 default:
   image: node:22
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}-npm
-    paths:
-      - .npm/
- 
-  before_script:
-    - npm ci --cache .npm --prefer--offline
 
 stages:
   - test
@@ -17,6 +10,13 @@ test:
   stage: test
   script:
     - npm test
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-npm
+    paths:
+      - .npm/
+ 
+  before_script:
+    - npm ci --cache .npm --prefer--offline  
 
 publish:
   stage: publish
@@ -39,6 +39,6 @@ deploy:
     - ssh -i $SERVER_KEY -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY"
     - ssh -i $SERVER_KEY -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME"
     - ssh -i $SERVER_KEY -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker container rm -f klippify || true"
-    - ssh -i $SERVER_KEY -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker run -d -p $APP_PORT:$APP_PORT --name klippify $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME"
+    - ssh -i $SERVER_KEY -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker run -d -p $APP_PORT:$APP_PORT -e APP_PORT=$APP_PORT --name klippify $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME"
 
 
