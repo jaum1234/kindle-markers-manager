@@ -13,6 +13,8 @@ export const renderPage = () => {
 
 export const importClippings = () => {
     return (req: Request, res: Response) => {
+        let unused: any;
+
         const bb = busboy({ headers: req.headers });
     
         let clippings: Clipping[];
